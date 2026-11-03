@@ -1,0 +1,13 @@
+[project]
+name = "fluxo-dsl"
+version = "0.1.0"
+description = "Mini linguagem para descrever financiamentos e gerar o cronograma de pagamentos"
+requires-python = ">=3.10"
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
