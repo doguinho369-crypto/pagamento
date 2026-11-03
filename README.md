@@ -8,8 +8,9 @@ bibliotecas de parsing. Todo cálculo de dinheiro usa `Decimal`.
 
 ## Como usar
 
+Da raiz do repositório, sem instalar nada:
+
 ```
-pip install -e .            # ou: export PYTHONPATH=src
 python -m fluxo_dsl exemplos/price_simples.fluxo
 python -m fluxo_dsl exemplos/sac_simples.fluxo --tudo
 python -m fluxo_dsl exemplos/sac_simples.fluxo --formato csv --tudo
@@ -20,7 +21,9 @@ Opções:
 - `--formato texto` (padrão) ou `--formato csv`
 - `--tudo` mostra todas as linhas; por padrão aparecem no máximo 10
 
-Testes: `pip install pytest && python -m pytest`
+Para usar de qualquer pasta: `pip install -e .`
+
+Testes: `pip install pytest` e depois `python -m pytest`
 
 ## A linguagem
 
