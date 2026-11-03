@@ -1,0 +1,7 @@
+# Tarifa cobrada na contratação: o cliente recebe 9.850 mas paga como se
+# devesse 10.000. Por isso o CET fica acima dos 2% ao mês informados.
+principal 10000
+juros 2% ao mes
+parcelas 10 sistema price
+tarifa 150 na contratacao
+primeiro_vencimento 2026-12-10

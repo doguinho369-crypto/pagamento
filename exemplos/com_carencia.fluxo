@@ -1,0 +1,7 @@
+# Carência de 2 meses: nos dois primeiros vencimentos paga-se só os juros.
+# Para somar os juros ao saldo em vez de pagar, use: carencia 2 meses capitalizada
+principal 10000
+juros 2% ao mes
+parcelas 10 sistema price
+carencia 2 meses
+primeiro_vencimento 2026-12-10
