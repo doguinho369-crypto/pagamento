@@ -1,0 +1,6 @@
+# Financiamento pelo sistema SAC (amortização constante)
+# taxa anual: convertida para mensal pela taxa equivalente
+principal 50000
+juros 12,68% ao ano
+parcelas 12 sistema sac
+primeiro_vencimento 2027-01-31

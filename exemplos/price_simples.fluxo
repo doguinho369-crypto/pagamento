@@ -1,0 +1,5 @@
+# Financiamento simples pelo sistema Price (parcela fixa)
+principal 10000
+juros 2% ao mes
+parcelas 10 sistema price
+primeiro_vencimento 2026-12-10
