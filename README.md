@@ -1,14 +1,81 @@
 # fluxo-dsl
 
-Mini linguagem para descrever um financiamento em um arquivo de texto e gerar
-o cronograma de pagamentos (tabela Price ou SAC), com carência, tarifa e CET.
+**Uma mini linguagem para descrever financiamentos e gerar a tabela de pagamentos.**
 
-Só Python 3.10+ e biblioteca padrão. Lexer e parser escritos à mão, sem
-bibliotecas de parsing. Todo cálculo de dinheiro usa `Decimal`.
+Você escreve o contrato em texto simples, o programa entrega o cronograma
+completo: vencimentos, parcela, juros, amortização, saldo devedor e o CET.
+
+Feito em Python puro, só com a biblioteca padrão. Lexer, parser e
+interpretador escritos à mão, sem bibliotecas de parsing.
+
+## Exemplo rápido
+
+Arquivo `exemplos/com_tarifa.fluxo`:
+
+```
+principal 10000
+juros 2% ao mes
+parcelas 10 sistema price
+tarifa 150 na contratacao
+primeiro_vencimento 2026-12-10
+```
+
+Comando:
+
+```
+python -m fluxo_dsl exemplos/com_tarifa.fluxo
+```
+
+Saída real:
+
+```
+Principal:      R$ 10.000,00
+Sistema:        PRICE, 10 parcelas
+Juros:          2,00% ao mês
+Tarifa:         R$ 150,00 na contratação
+CET:            2,29% ao mês / 31,22% ao ano
+Total pago:     R$ 11.132,65 (juros: R$ 1.132,65)
+
+Nº  Vencimento   Parcela   Juros  Amortização     Saldo
+--  ----------  --------  ------  -----------  --------
+ 1  10/12/2026  1.113,27  200,00       913,27  9.086,73
+ 2  10/01/2027  1.113,27  181,73       931,54  8.155,19
+ 3  10/02/2027  1.113,27  163,10       950,17  7.205,02
+ 4  10/03/2027  1.113,27  144,10       969,17  6.235,85
+ 5  10/04/2027  1.113,27  124,72       988,55  5.247,30
+ 6  10/05/2027  1.113,27  104,95     1.008,32  4.238,98
+ 7  10/06/2027  1.113,27   84,78     1.028,49  3.210,49
+ 8  10/07/2027  1.113,27   64,21     1.049,06  2.161,43
+ 9  10/08/2027  1.113,27   43,23     1.070,04  1.091,39
+10  10/09/2027  1.113,22   21,83     1.091,39      0,00
+```
+
+A tarifa faz o CET (2,29% ao mês) ficar acima da taxa informada (2%), e a
+última parcela absorve os centavos de arredondamento para o saldo fechar
+exatamente em zero.
+
+Se o arquivo tiver um erro, a mensagem aponta a linha:
+
+```
+erro: linha 4: 'sistema' precisa ser price ou sac
+```
+
+## Destaques
+
+- **Lexer e parser feitos à mão**: tokens com linha e coluna, parser
+  descendente recursivo gerando uma AST, mensagens de erro claras e sem
+  traceback do Python.
+- **Price e SAC**: parcela fixa ou amortização constante.
+- **Taxa equivalente**: 12,68% ao ano vira 1% ao mês (e não 1,057%).
+- **Carência**: só juros, ou juros somados ao saldo (`capitalizada`).
+- **CET por bisseção**: custo efetivo total considerando a tarifa.
+- **Datas corretas**: dia 31 vira 28/02, 30/04 etc., e volta a 31 depois.
+- **Decimal em todo o dinheiro**: nada de float, nada de centavo perdido.
+- **42 testes** com pytest cobrindo lexer, parser, validação, cálculo e CLI.
 
 ## Como usar
 
-Da raiz do repositório, sem instalar nada:
+Requer Python 3.10 ou mais novo. Da raiz do repositório, sem instalar nada:
 
 ```
 python -m fluxo_dsl exemplos/price_simples.fluxo
@@ -23,7 +90,15 @@ Opções:
 
 Para usar de qualquer pasta: `pip install -e .`
 
-Testes: `pip install pytest` e depois `python -m pytest`
+Para rodar os testes: `pip install pytest` e depois `python -m pytest`
+
+Exemplos prontos em `exemplos/`:
+
+- `price_simples.fluxo`: Price, 10 parcelas
+- `sac_simples.fluxo`: SAC com taxa anual e vencimento no dia 31
+- `com_carencia.fluxo`: 2 meses pagando só juros
+- `com_tarifa.fluxo`: tarifa na contratação e CET maior
+- `erro_sistema.fluxo` e `erro_falta_campo.fluxo`: erros de propósito
 
 ## A linguagem
 
@@ -84,41 +159,6 @@ Cada token guarda linha e coluna, usadas nas mensagens de erro.
   original volta a valer nos meses seguintes.
 - **arredondamento**: cada linha é arredondada a centavos (meio para cima);
   a última parcela absorve a diferença para o saldo fechar exatamente em zero.
-
-## Exemplo de saída real
-
-`python -m fluxo_dsl exemplos/com_tarifa.fluxo`:
-
-```
-Principal:      R$ 10.000,00
-Sistema:        PRICE, 10 parcelas
-Juros:          2,00% ao mes
-Tarifa:         R$ 150,00 na contratação
-CET:            2,29% ao mês / 31,22% ao ano
-Total pago:     R$ 11.132,65 (juros: R$ 1.132,65)
-
-Nº  Vencimento   Parcela   Juros  Amortização     Saldo
---  ----------  --------  ------  -----------  --------
- 1  10/12/2026  1.113,27  200,00       913,27  9.086,73
- 2  10/01/2027  1.113,27  181,73       931,54  8.155,19
- 3  10/02/2027  1.113,27  163,10       950,17  7.205,02
- 4  10/03/2027  1.113,27  144,10       969,17  6.235,85
- 5  10/04/2027  1.113,27  124,72       988,55  5.247,30
- 6  10/05/2027  1.113,27  104,95     1.008,32  4.238,98
- 7  10/06/2027  1.113,27   84,78     1.028,49  3.210,49
- 8  10/07/2027  1.113,27   64,21     1.049,06  2.161,43
- 9  10/08/2027  1.113,27   43,23     1.070,04  1.091,39
-10  10/09/2027  1.113,22   21,83     1.091,39      0,00
-```
-
-Com erro, `python -m fluxo_dsl exemplos/erro_sistema.fluxo`:
-
-```
-erro: linha 4: 'sistema' precisa ser price ou sac
-```
-
-O programa sai com código 1 em erro de linguagem e 2 se não lê o arquivo.
-Nunca mostra traceback do Python.
 
 ## Estrutura
 

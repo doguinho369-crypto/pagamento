@@ -31,7 +31,8 @@ def formatar_texto(cron: Cronograma, tudo: bool) -> str:
         tipo = "capitalizada" if c.carencia_capitalizada else "só juros"
         p(f", carência de {c.carencia_meses} meses ({tipo})")
     p("\n")
-    p(f"Juros:          {_percentual(c.taxa_percentual / 100)} ao {c.periodo_taxa}")
+    periodo = "mês" if c.periodo_taxa == "mes" else "ano"
+    p(f"Juros:          {_percentual(c.taxa_percentual / 100)} ao {periodo}")
     if c.periodo_taxa == "ano":
         p(f" (equivale a {_percentual(cron.taxa_mensal)} ao mês)")
     p("\n")
